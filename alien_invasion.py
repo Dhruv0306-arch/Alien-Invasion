@@ -6,6 +6,7 @@ import pygame
 
 from settings import settings
 from game_stats import GameStats
+from scoreboard import Scoreboard
 from button import Button
 from ship import ship
 from bullet import bullet
@@ -23,6 +24,7 @@ class AlienInvasion:
         pygame.display.set_caption("Alien Invasion")
 
         self.stats = GameStats(self)
+        self.sb = Scoreboard(self)
         self.ship = ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
@@ -62,6 +64,8 @@ class AlienInvasion:
         """Start a new game when the player clicks play"""
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if button_clicked and not self.stats.game_active:
+            # Reset the game settings
+            self.settings.initialize_dynamic_settings()
             # Reset the game statistics
             self.stats._reset_stats()
             self.stats.game_active = True
@@ -113,6 +117,7 @@ class AlienInvasion:
             # Destroy exisiting bullets and create new fleet
             self.bullets.empty()
             self._create_fleet()
+            self.settings.increase_speed()
 
     def _update_aliens(self):
         """Check if the fleet is at an edge, then update the positions of all aliens."""
@@ -181,6 +186,8 @@ class AlienInvasion:
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
         self.aliens.draw(self.screen)
+        # Draw the score information
+        self.sb.show_score()
         # Draw the play button if the game is inactive.
         if not self.stats.game_active:
             self.play_button.draw_button()
